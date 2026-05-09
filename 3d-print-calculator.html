@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="application-name" content="3D Print Calculator">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PrintCalc">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#009195">
+<meta name="description" content="FDM 3D printing cost calculator — material, electricity, amortization & failure rate.">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<title>3D Print Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f0f7f7;
+    --surface: #ffffff;
+    --border: #cde5e5;
+    --text: #0d2b2b;
+    --muted: #4a7878;
+    --accent: #009195;
+    --accent-dark: #006e71;
+    --accent-light: #e0f4f4;
+    --mono: 'Courier New', monospace;
+    --sans: 'Nunito', 'Trebuchet MS', sans-serif;
+    --title-font: 'Nunito', 'Trebuchet MS', sans-serif;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,145,149,0.08), 0 4px 16px rgba(0,145,149,0.10);
+  }
+
+  body {
+    font-family: var(--sans);
+    font-weight: 500;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 4rem;
+    background-color: #edf4f4;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27220%27%20height%3D%27240%27%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3Csymbol%20id%3D%27ic%27%20viewBox%3D%270%200%20765%20700%27%20width%3D%2782%27%20height%3D%2775%27%3E%0A%20%20%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20fill%3D%27%2523ffffff%27%20d%3D%27M480.76%2C435.46c-35.52-7.58-65.84%2C9.78-72.52%2C41.06-6.45%2C30.22%2C14.24%2C57.92%2C49.76%2C65.51%2C34.46%2C7.36%2C66.26-9.13%2C72.71-39.36%2C6.68-31.28-15.49-59.85-49.95-67.21Z%27%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20fill%3D%27%2523ffffff%27%20d%3D%27M581.99%2C174.34l-83.77-17.89c-15.37-3.28-25.67%2C3.39-28.95%2C18.76l-.98%2C4.6c25.94%2C28.15%2C41.07%2C66.65%2C41.07%2C111.73%2C0%2C44.04-14.85%2C81.08-40.69%2C107.96%2C1.87.79%2C3.86%2C1.48%2C6.07%2C1.95l28.63%2C6.11c14.31%2C3.06%2C25.03-2.97%2C30.21-16.83l64.92-176.84%2C2.27-10.61c3.28-15.38-3.38-25.67-18.77-28.95Z%27%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%20%20%3Cpath%20fill%3D%27%2523ffffff%27%20d%3D%27M482.97%2C291.55c0%2C72.65-47.71%2C128.49-135.54%2C128.49h-70.49v83.49c0%2C21.14-11.38%2C32.53-32.53%2C32.53h-48.79c-21.14%2C0-32.53-11.39-32.53-32.53V189.08c0-21.14%2C11.38-32.53%2C32.53-32.53h151.81c88.37%2C0%2C135.54%2C62.35%2C135.54%2C134.99ZM369.11%2C292.64c0-20.06-14.1-38.49-33.62-38.49h-58.55v75.36h58.55c19.52%2C0%2C33.62-18.43%2C33.62-36.87Z%27%2F%3E%0A%20%20%20%20%3C%2Fsymbol%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3C%21--%20Top-left%3A%20tilted%20left%20--%3E%0A%20%20%3Cg%20transform%3D%27translate%2814%2C12%29%20rotate%28-9%2C41%2C37%29%27%3E%3Cuse%20href%3D%27%2523ic%27%20opacity%3D%270.20%27%2F%3E%3C%2Fg%3E%0A%20%20%3C%21--%20Top-right%3A%20tilted%20right%20--%3E%0A%20%20%3Cg%20transform%3D%27translate%28122%2C6%29%20rotate%287%2C41%2C37%29%27%3E%3Cuse%20href%3D%27%2523ic%27%20opacity%3D%270.17%27%2F%3E%3C%2Fg%3E%0A%20%20%3C%21--%20Bottom-left%20%28offset%20row%29%3A%20slightly%20right%20--%3E%0A%20%20%3Cg%20transform%3D%27translate%2860%2C126%29%20rotate%284%2C41%2C37%29%27%3E%3Cuse%20href%3D%27%2523ic%27%20opacity%3D%270.22%27%2F%3E%3C%2Fg%3E%0A%20%20%3C%21--%20Bottom-right%20%28offset%20row%29%3A%20slightly%20left%20--%3E%0A%20%20%3Cg%20transform%3D%27translate%28168%2C120%29%20rotate%28-6%2C41%2C37%29%27%3E%3Cuse%20href%3D%27%2523ic%27%20opacity%3D%270.16%27%2F%3E%3C%2Fg%3E%0A%3C%2Fsvg%3E");
+    background-size: 220px 240px;
+    background-repeat: repeat;
+  }
+
+  /* ── Top bar ── */
+  .topbar-wrap {
+    background: var(--accent);
+    width: 100%;
+    margin-bottom: 2.5rem;
+  }
+
+  .topbar {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 72px;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 1rem; }
+
+  .topbar-logo {
+    height: 42px;
+    width: auto;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .topbar-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(255,255,255,0.35);
+    flex-shrink: 0;
+  }
+
+  .topbar h1 {
+    font-family: var(--title-font);
+    font-size: 1.05rem;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    color: #ffffff;
+    white-space: nowrap;
+  }
+
+  .topbar .badge {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.18);
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+
+  /* ── Language switcher ── */
+  .lang-switcher {
+    display: flex;
+    gap: 0.25rem;
+    background: rgba(255,255,255,0.15);
+    padding: 3px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+
+  .lang-btn {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 16px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.75);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+
+  .lang-btn.active {
+    background: #ffffff;
+    color: var(--accent);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    max-width: 680px;
+    margin: 0 1rem 1.25rem;
+    box-shadow: var(--shadow);
+  }
+
+  @media (min-width: 712px) {
+    .card { margin-left: auto; margin-right: auto; }
+  }
+
+  .card-title {
+    font-family: var(--title-font);
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+  @media (max-width: 500px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+  label { font-size: 0.8rem; font-weight: 500; color: var(--muted); }
+  .input-wrap { position: relative; }
+
+  input[type="number"], select {
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    color: var(--text);
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a7870' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    background-color: var(--bg);
+    padding-right: 2.2rem;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+  }
+
+  input[type="number"]:focus, select:focus { border-color: var(--accent); background: #fff; }
+
+  .unit {
+    position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%);
+    font-family: var(--mono); font-size: 0.72rem; color: var(--muted); pointer-events: none;
+  }
+
+  input.has-unit { padding-right: 2.8rem; }
+
+  .presets { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+
+  .preset-pill {
+    font-family: var(--mono); font-size: 0.72rem; padding: 4px 10px;
+    border-radius: 20px; border: 1.5px solid var(--border);
+    background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s;
+  }
+
+  .preset-pill:hover, .preset-pill.active {
+    border-color: var(--accent); color: var(--accent); background: var(--accent-light);
+  }
+
+  /* ── Results ── */
+  .results-card { background: var(--accent); border: none; color: #fff; }
+  .results-card .card-title { color: rgba(255,255,255,0.75); font-family: var(--title-font); font-weight: 900; }
+
+  .results-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+
+  @media (max-width: 500px) { .results-grid { grid-template-columns: 1fr; } }
+
+  .result-item { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem 1.1rem; }
+
+  .result-label {
+    font-size: 0.72rem; font-weight: 500; letter-spacing: 0.06em;
+    text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 0.3rem;
+  }
+
+  .result-value {
+    font-family: var(--mono); font-size: 1.6rem; font-weight: 500;
+    letter-spacing: -0.02em; line-height: 1;
+  }
+
+  .result-sub { font-size: 0.75rem; color: rgba(255,255,255,0.55); margin-top: 0.25rem; }
+
+  .result-item.full-row {
+    grid-column: span 2;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+
+  .result-item.highlight { background: rgba(255,255,255,0.18); }
+  .result-item.highlight .result-value { font-size: 2rem; }
+
+  @media (max-width: 500px) {
+    .result-item.full-row { grid-column: span 1; flex-direction: column; align-items: flex-start; }
+  }
+
+  .results-divider {
+    grid-column: span 2; border: none;
+    border-top: 1px solid rgba(255,255,255,0.15); margin: 0;
+  }
+
+  @media (max-width: 500px) { .results-divider { grid-column: span 1; } }
+
+  .hint { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; }
+
+  .section-row {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;
+  }
+
+  .toggle-label {
+    font-size: 0.8rem; font-weight: 500; color: var(--muted);
+    display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none;
+  }
+
+  .toggle {
+    width: 34px; height: 20px; background: var(--border);
+    border-radius: 10px; position: relative; transition: background 0.2s; flex-shrink: 0;
+  }
+
+  .toggle::after {
+    content: ''; position: absolute; width: 14px; height: 14px;
+    background: white; border-radius: 50%; top: 3px; left: 3px;
+    transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .toggle.on { background: var(--accent); }
+  .toggle.on::after { left: 17px; }
+
+  .dimmed { opacity: 0.38; pointer-events: none; }
+
+  /* ── PWA / Mobile polish ── */
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+  .topbar-wrap {
+    padding-top: env(safe-area-inset-top);
+  }
+  .topbar {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  input[type="number"], select, button {
+    -webkit-appearance: none;
+    touch-action: manipulation;
+    font-size: 16px; /* prevents iOS zoom on focus */
+  }
+  .preset-pill { font-size: 0.75rem; min-height: 34px; }
+  .lang-btn { min-height: 30px; }
+  @media (max-width: 430px) {
+    .topbar h1 { font-size: 0.9rem; }
+    .topbar-logo { height: 34px; }
+    .card { padding: 1.4rem; }
+    .result-value { font-size: 1.35rem; }
+    .result-item.highlight .result-value { font-size: 1.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar-wrap">
+  <div class="topbar">
+    <div class="topbar-left">
+      <!-- POP 2026 logo — white version on teal background -->
+      <svg class="topbar-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 764.668531714 699.3979605445" aria-label="POP 2026">
+        <g>
+          <g>
+            <path fill="#fff" d="M622.7520148504,382.7741773659c-23.7012088664-5.0614417702-43.9340878508,6.5228086754-48.3912211115,27.3950804313-4.3067721386,20.1659324849,9.5046129266,38.6517584323,33.2054637903,43.7132002025,22.9952275981,4.9107226455,44.2115399213-6.0946374802,48.5179540572-26.2609279678,4.4574912633-20.8719137532-10.3373271406-39.9366300205-33.332196736-44.8473526659Z"/>
+            <path fill="#fff" d="M690.2956628837,208.5378571562l-55.8999691443-11.9375990824c-10.2567765395-2.1902603445-17.1286378196,2.2607868707-19.3196141694,12.5204274316l-.6569349023,3.0752429485c17.3072811527,18.7847581781,27.4015244793,44.4739558795,27.4015244793,74.5551303553,0,29.3848592796-9.905217916,54.1006477171-27.1444785612,72.0340755424,1.249071321.5269799325,2.5718911923.9866553628,4.046862199,1.3016977137l19.1019485451,4.0794404422c9.5511532739,2.0395412197,16.7001086218-1.9804707789,20.1576984235-11.2312598114l43.3215452799-117.9991125488,1.5114872792-7.0780708189c2.1909763498-10.2592825582-2.2579228494-17.128279817-12.5200694289-19.3199721721Z"/>
+          </g>
+          <g>
+            <path fill="#fff" d="M203.0783711053,323.2888114662c0-40.2563264062,16.7516610065-77.0740371522,46.9817645936-101.2871898389-15.2072374815-15.539105958-37.2315618344-25.3311950298-65.7550666863-25.3311950298h-101.294707895c-14.1081692799,0-21.7035539592,7.5982487007-21.7035539592,21.7064179805v209.821069755c0,14.1081692799,7.5953846793,21.7064179805,21.7035539592,21.7064179805h32.5581949602c14.1081692799,0,21.7035539592-7.5982487007,21.7035539592-21.7064179805v-55.7109437337h47.0329589757c9.6492460059,0,18.4979980382-1.1001422097,26.6733470454-3.0043584195-5.1770766331-14.4561478766-7.9000449528-30.0428681899-7.9000449528-46.1938007136ZM176.3430895977,312.0733037723h-39.0709795607v-50.2836232332h39.0709795607c13.0255692011,0,22.4310153877,12.2981077726,22.4310153877,25.6845436667,0,12.2981077726-9.4054461866,24.5990795666-22.4310153877,24.5990795666Z"/>
+            <path fill="#fff" d="M533.7833389364,196.6704265974h-101.294707895c-11.0483204463,0-18.0354585866,4.7209812295-20.5754875412,13.5181808772,41.3156563112,22.8488045054,64.6563564874,65.5782133666,64.6563564874,113.1002039915s-23.3403421734,90.2503254781-64.6559984847,113.0980559755c2.5403869572,8.7964836423,9.5268090922,13.5174648718,20.5751295385,13.5174648718h32.5581949601c14.1081692799,0,21.7035539592-7.5982487007,21.7035539592-21.7064179805v-55.7109437337h47.0329589757c58.6036053197,0,90.440066894-37.2609180534,90.440066894-85.7373438007s-31.4755948814-90.0792002011-90.440066894-90.0792002011ZM525.8213595214,312.0733037723h-39.0709795607v-50.2836232332h39.0709795607c13.0255692011,0,22.4310153877,12.2981077726,22.4310153877,25.6845436667,0,12.2981077726-9.4054461866,24.5990795666-22.4310153877,24.5990795666Z"/>
+          </g>
+          <path fill="#fff" d="M400.5983582994,323.2889842805c0-35.4537205675-22.0644206521-65.4801206346-60.7745335199-65.4801206346s-60.7745335199,30.026400067-60.7745335199,65.4801206346c0,35.4508565461,22.0644206521,65.4772566132,60.7745335199,65.4772566132s60.7745335199-30.0264000671,60.7745335199-65.4772566132Z"/>
+        </g>
+        <g>
+          <path fill="#fff" d="M348.7095108535,479.5880775481h23.4964313382c16.3535620357,0,24.733688571,9.4484065072,24.733688571,21.0333729581,0,11.5821024295-8.3801265353,21.0333729581-24.8138811695,21.0333729581h-7.8073222609v11.1725473733h-15.6089164789v-53.2392932894ZM372.5381686709,508.4259087457c4.5996183239,0,7.8875148593-3.4511457536,7.8875148593-7.8044582395,0-4.3561765073-3.2878965354-7.8073222608-7.8073222608-7.8073222608h-8.2999339369v15.6117805003h8.2197413385Z"/>
+          <path fill="#fff" d="M408.3670760381,479.5880775481h23.4964313382c16.3535620357,0,24.733688571,9.4484065072,24.733688571,21.0333729581,0,6.1605099718-2.7952848593,12.4871331832-8.3801265353,16.347833993l9.9381541618,15.8580863384h-17.8256690211l-6.0831813947-11.4217172327c-1.6382202249.1661132396-2.5432509786.2491698594-3.8607008098.2491698594h-6.4096798312v11.1725473733h-15.608916479v-53.2392932894ZM432.029620616,508.4259087457c4.8459241619,0,8.0536280989-3.5342023734,8.0536280989-7.8044582395,0-4.3561765073-3.2878965354-7.8073222608-7.9677074577-7.8073222608h-8.13954874v15.6117805003h8.0536280989Z"/>
+          <path fill="#fff" d="M468.110561864,479.5880775481h15.608916479v53.2392932894h-15.608916479v-53.2392932894Z"/>
+          <path fill="#fff" d="M496.8710644845,479.5880775481h13.5525491336l16.9263663102,23.579487958c1.2315291901,1.6439482677,2.3828657817,4.0239500281,2.3828657817,4.0239500281v-27.6034379861h15.608916479v53.2392932894h-13.5525491336l-16.9263663102-23.1699329018c-1.2315291901-1.6439482677-2.3828657817-4.0268140494-2.3828657817-4.0268140494v27.1967469512h-15.608916479v-53.2392932894Z"/>
+          <path fill="#fff" d="M572.297931345,492.8141282453h-16.6743324295v-13.2260506972h48.9690374233v13.2260506972h-16.6800604722v40.0132425922h-15.6146445217v-40.0132425922Z"/>
+          <path fill="#fff" d="M612.8982983185,527.4057783798l5.0922299999-12.1606347467c4.1070066479,2.2998091619,8.7925456129,4.8459241619,17.3387853878,4.8459241619,1.6439482677,0,6.4096798312-.492611676,6.4096798312-3.285032514,0-2.546115-3.3738171766-2.9585340776-6.4096798312-3.6974515916-10.270380641-2.2998091619-21.0333729581-6.2435665916-21.0333729581-18.2409521201,0-11.0894907535,10.1042674014-16.101528155,21.0333729581-16.101528155,8.7925456129,0,15.1964974013,2.2167525421,20.6209538805,5.4215924577l-5.2583432395,12.0775781269c-3.1217832958-2.1365599437-10.1901880426-3.8607008098-15.3626106409-3.8607008098-1.3174498312,0-4.7657315635.3293624578-4.7657315635,2.4630583802,0,1.8902541057,1.9704467041,2.7122282396,4.7657315635,3.3709531552,7.9677074577,1.7241408661,22.6773212257,4.9289807817,22.6773212257,18.5674505565,0,12.1606347467-11.6680230707,17.0065589086-22.6773212257,17.0065589086-14.9559196061,0-20.7870671201-5.7509549155-22.4310153877-6.4068158098Z"/>
+        </g>
+      </svg>
+      <div class="topbar-divider"></div>
+      <div>
+        <h1 data-i18n="title">3D Print Calculator</h1>
+      </div>
+      
+    </div>
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="es">ES</button>
+      <button class="lang-btn" data-lang="pt">PT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Filament & Print Settings -->
+<div class="card">
+  <p class="card-title" data-i18n="card_filament">Filament &amp; Print Settings</p>
+
+  <div style="margin-bottom:1rem;">
+    <p style="font-size:0.78rem;font-weight:500;color:var(--muted);margin-bottom:0.5rem;" data-i18n="quick_presets">Quick Presets</p>
+    <div class="presets" id="presets">
+      <button class="preset-pill active" data-density="1.24" data-cost="25">PLA</button>
+      <button class="preset-pill" data-density="1.08" data-cost="25">PETG</button>
+      <button class="preset-pill" data-density="1.10" data-cost="28">ABS</button>
+      <button class="preset-pill" data-density="1.21" data-cost="45">TPU</button>
+      <button class="preset-pill" data-density="1.30" data-cost="35">ASA</button>
+      <button class="preset-pill" data-density="1.77" data-cost="120">PA-CF</button>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:1rem;">
+    <div class="field">
+      <label for="filamentUsed" data-i18n="lbl_filament_used">Filament Used</label>
+      <div class="input-wrap">
+        <input type="number" id="filamentUsed" class="has-unit" value="50" min="0" step="1">
+        <span class="unit">g</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="spoolWeight" data-i18n="lbl_spool_weight">Spool Weight</label>
+      <div class="input-wrap">
+        <input type="number" id="spoolWeight" class="has-unit" value="1000" min="1" step="50">
+        <span class="unit">g</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:1rem;">
+    <div class="field">
+      <label for="spoolCost" data-i18n="lbl_spool_cost">Spool Cost</label>
+      <div class="input-wrap">
+        <input type="number" id="spoolCost" class="has-unit" value="25" min="0" step="0.5">
+        <span class="unit">$</span>
+      </div>
+    </div>
+    <div class="field">
+      <label data-i18n="lbl_print_time">Print Time</label>
+      <div style="display:flex;gap:0.5rem;">
+        <div class="input-wrap" style="flex:1;">
+          <input type="number" id="printTimeHr" class="has-unit" value="4" min="0" step="1">
+          <span class="unit" data-i18n="unit_hr">hr</span>
+        </div>
+        <div class="input-wrap" style="flex:1;">
+          <input type="number" id="printTimeMin" class="has-unit" value="0" min="0" max="59" step="1">
+          <span class="unit" data-i18n="unit_min">min</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="quantity" data-i18n="lbl_quantity">Quantity</label>
+    <div class="input-wrap" style="max-width:160px;">
+      <input type="number" id="quantity" class="has-unit" value="1" min="1" step="1">
+      <span class="unit" data-i18n="unit_pcs">pcs</span>
+    </div>
+  </div>
+</div>
+
+<!-- Electricity -->
+<div class="card">
+  <div class="section-row">
+    <p class="card-title" style="margin-bottom:0;" data-i18n="card_electricity">Electricity Cost</p>
+    <label class="toggle-label" id="elecToggleLabel">
+      <span data-i18n="toggle_elec">Include electricity</span>
+      <div class="toggle on" id="elecToggle"></div>
+    </label>
+  </div>
+
+  <div id="elecFields">
+    <div class="field" style="margin-bottom:1rem;">
+      <label for="printerSelect" data-i18n="lbl_printer_select">3D Printer (optional — auto-fills wattage)</label>
+      <select id="printerSelect">
+        <option value="" data-i18n="opt_select_printer">— Select a printer to auto-fill wattage —</option>
+
+        <optgroup label="Bambu Lab — A Series">
+          <option value="70">Bambu Lab A1 mini — ~70W</option>
+          <option value="90">Bambu Lab A1 — ~90W</option>
+        </optgroup>
+        <optgroup label="Bambu Lab — P Series">
+          <option value="100">Bambu Lab P1P — ~100W</option>
+          <option value="100">Bambu Lab P1S — ~100W</option>
+          <option value="110">Bambu Lab P2S — ~110W</option>
+        </optgroup>
+        <optgroup label="Bambu Lab — X Series">
+          <option value="120">Bambu Lab X1 Carbon — ~120W</option>
+          <option value="120">Bambu Lab X1E — ~120W</option>
+          <option value="130">Bambu Lab X2D — ~130W</option>
+        </optgroup>
+        <optgroup label="Bambu Lab — H Series">
+          <option value="160">Bambu Lab H2C — ~160W</option>
+          <option value="180">Bambu Lab H2S — ~180W</option>
+          <option value="200">Bambu Lab H2D — ~200W</option>
+        </optgroup>
+
+        <optgroup label="Creality — Ender Series">
+          <option value="120">Creality Ender 3 — ~120W</option>
+          <option value="120">Creality Ender 3 Pro — ~120W</option>
+          <option value="130">Creality Ender 3 V3 SE — ~130W</option>
+          <option value="140">Creality Ender 3 V3 — ~140W</option>
+          <option value="150">Creality Ender 3 V3 Plus — ~150W</option>
+          <option value="160">Creality Ender 5 Plus — ~160W</option>
+        </optgroup>
+        <optgroup label="Creality — K Series">
+          <option value="200">Creality K1 — ~200W</option>
+          <option value="200">Creality K1C — ~200W</option>
+          <option value="210">Creality K1 Max — ~210W</option>
+          <option value="250">Creality K2 Plus — ~250W</option>
+        </optgroup>
+
+        <optgroup label="Elegoo — Neptune Series">
+          <option value="110">Elegoo Neptune 3 — ~110W</option>
+          <option value="120">Elegoo Neptune 3 Pro — ~120W</option>
+          <option value="130">Elegoo Neptune 4 — ~130W</option>
+          <option value="140">Elegoo Neptune 4 Pro — ~140W</option>
+          <option value="150">Elegoo Neptune 4 Plus — ~150W</option>
+          <option value="180">Elegoo Neptune 4 Max — ~180W</option>
+        </optgroup>
+
+        <optgroup label="Prusa">
+          <option value="80">Prusa MINI+ — ~80W</option>
+          <option value="95">Prusa MK3S+ — ~95W</option>
+          <option value="95">Prusa MK4 / MK4S — ~95W</option>
+          <option value="250">Prusa XL — ~250W</option>
+          <option value="110">Prusa Core One — ~110W</option>
+        </optgroup>
+
+        <optgroup label="Snapmaker">
+          <option value="120">Snapmaker 2.0 A150 — ~120W</option>
+          <option value="140">Snapmaker 2.0 A250 — ~140W</option>
+          <option value="160">Snapmaker 2.0 A350 — ~160W</option>
+          <option value="150">Snapmaker Artisan — ~150W</option>
+          <option value="130">Snapmaker J1s — ~130W</option>
+        </optgroup>
+      </select>
+      <p class="hint" style="margin-top:0.3rem;" data-i18n="hint_printer_select">Selecting a printer auto-fills the wattage below. You can still edit it manually.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label for="printerWatts" data-i18n="lbl_print_power">Avg. Print Power</label>
+        <div class="input-wrap">
+          <input type="number" id="printerWatts" class="has-unit" value="120" min="0" step="10">
+          <span class="unit">W</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="kwhRate" data-i18n="lbl_kwh_rate">Electricity Rate</label>
+        <div class="input-wrap">
+          <input type="number" id="kwhRate" class="has-unit" value="0.20" min="0" step="0.01">
+          <span class="unit">$/kWh</span>
+        </div>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:0.75rem;" data-i18n="hint_watts">Avg. wattage during active printing (not peak). Based on real-world measurements.</p>
+  </div>
+</div>
+
+<!-- Printer Amortization -->
+<div class="card">
+  <div class="section-row">
+    <p class="card-title" style="margin-bottom:0;" data-i18n="card_amort">Printer Amortization</p>
+    <label class="toggle-label" id="amortToggleLabel">
+      <span data-i18n="toggle_amort">Include amortization</span>
+      <div class="toggle on" id="amortToggle"></div>
+    </label>
+  </div>
+
+  <div id="amortFields">
+    <div class="grid-2" style="margin-bottom:0.75rem;">
+      <div class="field">
+        <label for="printerValue" data-i18n="lbl_printer_value">Printer Purchase Price</label>
+        <div class="input-wrap">
+          <input type="number" id="printerValue" class="has-unit" value="600" min="0" step="50">
+          <span class="unit">$</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="usefulLifeHours" data-i18n="lbl_useful_life">Useful Life</label>
+        <div class="input-wrap">
+          <input type="number" id="usefulLifeHours" class="has-unit" value="10000" min="1" step="100">
+          <span class="unit" data-i18n="unit_hr">hr</span>
+        </div>
+      </div>
+    </div>
+    <p class="hint" data-i18n="hint_amort">Cost per print = (printer price ÷ useful life hours) × print time. Spreads hardware cost across its entire working lifetime.</p>
+  </div>
+</div>
+
+<!-- Failure Rate, Markup & Labor -->
+<div class="card">
+  <p class="card-title" data-i18n="card_markup">Failure Rate, Markup &amp; Labor</p>
+  <div class="grid-2" style="margin-bottom:1rem;">
+    <div class="field">
+      <label for="failureRate" data-i18n="lbl_failure">Failure Rate</label>
+      <div class="input-wrap">
+        <input type="number" id="failureRate" class="has-unit" value="0" min="0" max="100" step="1">
+        <span class="unit">%</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="laborCost" data-i18n="lbl_labor">Labor / Finishing</label>
+      <div class="input-wrap">
+        <input type="number" id="laborCost" class="has-unit" value="0" min="0" step="0.5">
+        <span class="unit">$</span>
+      </div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="field">
+      <label for="markup" data-i18n="lbl_markup">Markup</label>
+      <div class="input-wrap">
+        <input type="number" id="markup" class="has-unit" value="1" min="1" step="0.1">
+        <span class="unit">×</span>
+      </div>
+    </div>
+    <div class="field" style="justify-content:flex-end;">
+      <p class="hint" style="padding-bottom:0.1rem;" data-i18n="hint_failure">Failure rate inflates base costs proportionally — e.g. 10% means every successful print absorbs 10% extra in wasted material &amp; electricity.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="card results-card">
+  <p class="card-title" data-i18n="card_results">Results</p>
+
+  <div class="results-grid">
+    <div class="result-item">
+      <p class="result-label" data-i18n="res_material">Material Cost</p>
+      <p class="result-value" id="res-material">$0.00</p>
+      <p class="result-sub" id="res-material-sub">—</p>
+    </div>
+    <div class="result-item">
+      <p class="result-label" data-i18n="res_elec">Electricity Cost</p>
+      <p class="result-value" id="res-elec">$0.00</p>
+      <p class="result-sub" id="res-elec-sub">—</p>
+    </div>
+    <div class="result-item">
+      <p class="result-label" data-i18n="res_amort">Amortization</p>
+      <p class="result-value" id="res-amort">$0.00</p>
+      <p class="result-sub" id="res-amort-sub" data-i18n="not_included">not included</p>
+    </div>
+    <div class="result-item">
+      <p class="result-label" data-i18n="res_failure">Failure Overhead</p>
+      <p class="result-value" id="res-failure">$0.00</p>
+      <p class="result-sub" id="res-failure-sub">0%</p>
+    </div>
+
+    <hr class="results-divider">
+
+    <div class="result-item">
+      <p class="result-label" data-i18n="res_length">Filament Length</p>
+      <p class="result-value" id="res-length">0.00 <span style="font-size:1rem;opacity:0.7">m</span></p>
+      <p class="result-sub" data-i18n="res_length_sub">meters · 1.75mm dia.</p>
+    </div>
+    <div class="result-item">
+      <p class="result-label" data-i18n="res_spool">% of Spool Used</p>
+      <p class="result-value" id="res-spool">0.0%</p>
+      <p class="result-sub" id="res-spool-sub">—</p>
+    </div>
+
+    <hr class="results-divider">
+
+    <div class="result-item full-row">
+      <div>
+        <p class="result-label" data-i18n="res_total_cost">Total Print Cost</p>
+        <p class="result-sub" id="res-base-sub">—</p>
+      </div>
+      <p class="result-value" id="res-base">$0.00</p>
+    </div>
+
+    <div class="result-item full-row">
+      <div>
+        <p class="result-label" data-i18n="res_quantity">Total for Qty</p>
+        <p class="result-sub" id="res-qty-sub">1 pc</p>
+      </div>
+      <p class="result-value" id="res-qty">$0.00</p>
+    </div>
+
+    <div class="result-item full-row highlight">
+      <div>
+        <p class="result-label" data-i18n="res_sale_price">Sale Price (with markup)</p>
+        <p class="result-sub" id="res-total-sub" data-i18n="no_markup">no markup applied</p>
+      </div>
+      <p class="result-value" id="res-total">$0.00</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  TRANSLATIONS
+// ─────────────────────────────────────────────
+const T = {
+  en: {
+    title: "3D Print Calculator",
+    card_filament: "Filament & Print Settings",
+    quick_presets: "Quick Presets",
+    lbl_filament_used: "Filament Used",
+    lbl_spool_weight: "Spool Weight",
+    lbl_spool_cost: "Spool Cost",
+    lbl_print_time: "Print Time",
+    unit_hr: "hr",
+    unit_min: "min",
+    lbl_quantity: "Quantity",
+    unit_pcs: "pcs",
+    lbl_qty_result: "per piece",
+    res_quantity: "Total for Qty",
+    card_electricity: "Electricity Cost",
+    toggle_elec: "Include electricity",
+    lbl_printer_select: "3D Printer (optional — auto-fills wattage)",
+    opt_select_printer: "— Select a printer to auto-fill wattage —",
+    hint_printer_select: "Selecting a printer auto-fills the wattage below. You can still edit it manually.",
+    lbl_print_power: "Avg. Print Power",
+    lbl_kwh_rate: "Electricity Rate",
+    hint_watts: "Avg. wattage during active printing (not peak). Based on real-world measurements.",
+    card_amort: "Printer Amortization",
+    toggle_amort: "Include amortization",
+    lbl_printer_value: "Printer Purchase Price",
+    lbl_useful_life: "Useful Life",
+    hint_amort: "Cost per print = (printer price ÷ useful life hours) × print time. Spreads hardware cost across its entire working lifetime.",
+    card_markup: "Failure Rate, Markup & Labor",
+    lbl_failure: "Failure Rate",
+    lbl_labor: "Labor / Finishing",
+    lbl_markup: "Price Multiplier",
+    hint_failure: "Failure rate inflates base costs proportionally — e.g. 10% means every successful print absorbs 10% extra in wasted material & electricity.",
+    hint_markup_en: "unused",
+    card_results: "Results",
+    res_material: "Material Cost",
+    res_elec: "Electricity Cost",
+    res_amort: "Amortization",
+    not_included: "not included",
+    res_failure: "Failure Overhead",
+    res_length: "Filament Length",
+    res_length_sub: "meters · 1.75mm dia.",
+    res_spool: "% of Spool Used",
+    res_total_cost: "Total Print Cost",
+    res_sale_price: "Sale Price (with markup)",
+    no_markup: "no multiplier (×1)",
+    elec_disabled: "not included",
+    of_spool: "of",
+    spool_label: "spool",
+    failure_zero: "0% failure rate",
+    failure_of_base: "of base cost",
+  },
+  es: {
+    title: "Calculadora de Impresión 3D",
+    card_filament: "Filamento y Configuración",
+    quick_presets: "Preajustes Rápidos",
+    lbl_filament_used: "Filamento Usado",
+    lbl_spool_weight: "Peso del Carrete",
+    lbl_spool_cost: "Costo del Carrete",
+    lbl_print_time: "Tiempo de Impresión",
+    unit_hr: "hr",
+    unit_min: "min",
+    lbl_quantity: "Cantidad",
+    unit_pcs: "pzs",
+    lbl_qty_result: "por pieza",
+    res_quantity: "Total por Cantidad",
+    card_electricity: "Costo de Electricidad",
+    toggle_elec: "Incluir electricidad",
+    lbl_printer_select: "Impresora 3D (opcional — rellena vatios)",
+    opt_select_printer: "— Selecciona una impresora para auto-rellenar vatios —",
+    hint_printer_select: "Al seleccionar una impresora se rellena automáticamente el consumo. Puedes editarlo manualmente.",
+    lbl_print_power: "Potencia Media de Impresión",
+    lbl_kwh_rate: "Tarifa Eléctrica",
+    hint_watts: "Vataje promedio durante la impresión activa (no pico). Basado en mediciones reales.",
+    card_amort: "Amortización de la Impresora",
+    toggle_amort: "Incluir amortización",
+    lbl_printer_value: "Precio de Compra de la Impresora",
+    lbl_useful_life: "Vida Útil",
+    hint_amort: "Costo por impresión = (precio ÷ horas de vida útil) × tiempo de impresión. Distribuye el costo del hardware a lo largo de su vida útil.",
+    card_markup: "Tasa de Fallos, Margen y Mano de Obra",
+    lbl_failure: "Tasa de Fallos",
+    lbl_labor: "Mano de Obra / Acabado",
+    lbl_markup: "Multiplicador de Precio",
+    hint_failure: "La tasa de fallos incrementa los costos base proporcionalmente — ej. 10% significa que cada impresión exitosa absorbe un 10% extra en material y electricidad desperdiciados.",
+    card_results: "Resultados",
+    res_material: "Costo de Material",
+    res_elec: "Costo de Electricidad",
+    res_amort: "Amortización",
+    not_included: "no incluido",
+    res_failure: "Coste por Fallos",
+    res_length: "Longitud de Filamento",
+    res_length_sub: "metros · diám. 1.75mm",
+    res_spool: "% del Carrete Usado",
+    res_total_cost: "Costo Total de Impresión",
+    res_sale_price: "Precio de Venta (con margen)",
+    no_markup: "sin multiplicador (×1)",
+    elec_disabled: "no incluido",
+    of_spool: "de",
+    spool_label: "carrete",
+    failure_zero: "0% tasa de fallos",
+    failure_of_base: "del costo base",
+  },
+  pt: {
+    title: "Calculadora de Impressão 3D",
+    card_filament: "Filamento e Configurações",
+    quick_presets: "Predefinições Rápidas",
+    lbl_filament_used: "Filamento Usado",
+    lbl_spool_weight: "Peso do Carretel",
+    lbl_spool_cost: "Custo do Carretel",
+    lbl_print_time: "Tempo de Impressão",
+    unit_hr: "hr",
+    unit_min: "min",
+    lbl_quantity: "Quantidade",
+    unit_pcs: "pçs",
+    lbl_qty_result: "por peça",
+    res_quantity: "Total por Quantidade",
+    card_electricity: "Custo de Eletricidade",
+    toggle_elec: "Incluir eletricidade",
+    lbl_printer_select: "Impressora 3D (opcional — preenche watts)",
+    opt_select_printer: "— Selecione uma impressora para preencher os watts —",
+    hint_printer_select: "Selecionar uma impressora preenche automaticamente o consumo abaixo. Você ainda pode editá-lo manualmente.",
+    lbl_print_power: "Potência Média de Impressão",
+    lbl_kwh_rate: "Tarifa de Eletricidade",
+    hint_watts: "Wattagem média durante a impressão ativa (não pico). Baseado em medições reais.",
+    card_amort: "Amortização da Impressora",
+    toggle_amort: "Incluir amortização",
+    lbl_printer_value: "Preço de Compra da Impressora",
+    lbl_useful_life: "Vida Útil",
+    hint_amort: "Custo por impressão = (preço ÷ horas de vida útil) × tempo de impressão. Distribui o custo do hardware ao longo de sua vida útil.",
+    card_markup: "Taxa de Falhas, Margem e Mão de Obra",
+    lbl_failure: "Taxa de Falhas",
+    lbl_labor: "Mão de Obra / Acabamento",
+    lbl_markup: "Multiplicador de Preço",
+    hint_failure: "A taxa de falhas aumenta os custos base proporcionalmente — ex. 10% significa que cada impressão bem-sucedida absorve 10% extra em material e eletricidade desperdiçados.",
+    card_results: "Resultados",
+    res_material: "Custo de Material",
+    res_elec: "Custo de Eletricidade",
+    res_amort: "Amortização",
+    not_included: "não incluído",
+    res_failure: "Custo por Falhas",
+    res_length: "Comprimento do Filamento",
+    res_length_sub: "metros · diâm. 1.75mm",
+    res_spool: "% do Carretel Usado",
+    res_total_cost: "Custo Total de Impressão",
+    res_sale_price: "Preço de Venda (com margem)",
+    no_markup: "sem multiplicador (×1)",
+    elec_disabled: "não incluído",
+    of_spool: "de",
+    spool_label: "carretel",
+    failure_zero: "0% taxa de falhas",
+    failure_of_base: "do custo base",
+  }
+};
+
+let lang = 'en';
+
+function applyLang(l) {
+  lang = l;
+  const t = T[l];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+  // Update select first option text
+  const firstOpt = document.querySelector('#printerSelect option[value=""]');
+  if (firstOpt) firstOpt.textContent = t.opt_select_printer;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  document.documentElement.lang = l;
+  calc();
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyLang(btn.dataset.lang));
+});
+
+// ─────────────────────────────────────────────
+//  TOGGLES
+// ─────────────────────────────────────────────
+let elecOn = true, amortOn = true;
+
+document.getElementById('elecToggleLabel').addEventListener('click', () => {
+  elecOn = !elecOn;
+  document.getElementById('elecToggle').classList.toggle('on', elecOn);
+  document.getElementById('elecFields').classList.toggle('dimmed', !elecOn);
+  calc();
+});
+
+document.getElementById('amortToggleLabel').addEventListener('click', () => {
+  amortOn = !amortOn;
+  document.getElementById('amortToggle').classList.toggle('on', amortOn);
+  document.getElementById('amortFields').classList.toggle('dimmed', !amortOn);
+  calc();
+});
+
+// ─────────────────────────────────────────────
+//  PRINTER DROPDOWN
+// ─────────────────────────────────────────────
+document.getElementById('printerSelect').addEventListener('change', function () {
+  if (this.value) { document.getElementById('printerWatts').value = this.value; calc(); }
+});
+
+document.getElementById('printerWatts').addEventListener('input', function () {
+  const sel = document.getElementById('printerSelect');
+  if (sel.value && parseInt(sel.value) !== parseInt(this.value)) sel.value = '';
+  calc();
+});
+
+// ─────────────────────────────────────────────
+//  MATERIAL PRESETS
+// ─────────────────────────────────────────────
+// density table (used internally, not shown as an input)
+const DENSITY = { '1.24': 1.24, '1.08': 1.08, '1.10': 1.10, '1.21': 1.21, '1.30': 1.30, '1.77': 1.77 };
+let currentDensity = 1.24;
+
+document.getElementById('presets').addEventListener('click', e => {
+  const pill = e.target.closest('.preset-pill');
+  if (!pill) return;
+  document.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  currentDensity = parseFloat(pill.dataset.density);
+  document.getElementById('spoolCost').value = pill.dataset.cost;
+  calc();
+});
+
+// ─────────────────────────────────────────────
+//  CALCULATION
+// ─────────────────────────────────────────────
+const get = id => parseFloat(document.getElementById(id).value) || 0;
+const fmt = n => '$' + n.toFixed(2);
+const fmtg = n => n.toFixed(1) + 'g';
+
+function calc() {
+  const t = T[lang];
+  const filament    = get('filamentUsed');
+  const spoolW      = get('spoolWeight');
+  const spoolC      = get('spoolCost');
+  const printTime   = get('printTimeHr') + get('printTimeMin') / 60;
+  const qty         = Math.max(1, Math.round(get('quantity') || 1));
+  const watts       = get('printerWatts');
+  const rate        = get('kwhRate');
+  const printerVal  = get('printerValue');
+  const usefulLife  = get('usefulLifeHours') || 1;
+  const failurePct  = Math.min(get('failureRate'), 100);
+  const markup      = get('markup');
+  const labor       = get('laborCost');
+
+  // ── Time display string ──
+  const hrDisplay  = Math.floor(printTime);
+  const minDisplay = Math.round((printTime - hrDisplay) * 60);
+  const timeStr    = minDisplay > 0 ? `${hrDisplay}h ${minDisplay}m` : `${hrDisplay}h`;
+
+  // ── Material: total filament for the job; cost split per piece ──
+  const cpg             = spoolW > 0 ? spoolC / spoolW : 0;
+  const materialJobCost = filament * cpg;           // total filament cost for entire job
+  const materialPerPc   = materialJobCost / qty;    // filament cost attributed to each piece
+
+  // Filament length (1.75mm diameter) — total for job
+  const r       = 0.175 / 2; // cm
+  const volCm3  = filament / currentDensity;
+  const lengthM = volCm3 / (Math.PI * r * r) / 100;
+
+  // ── Shared job costs (not multiplied by qty) ──
+  const elecCost  = elecOn  ? (watts / 1000) * printTime * rate : 0;
+  const amortCost = amortOn ? (printerVal / usefulLife) * printTime : 0;
+
+  // ── Per-piece cost: material share + shared costs divided by qty + labor per piece ──
+  const sharedPerPc  = (elecCost + amortCost + labor) / qty;
+  const basePerPc    = materialPerPc + sharedPerPc;
+  const failurePerPc = basePerPc * (failurePct / 100);
+  const totalPerPc   = basePerPc + failurePerPc;
+
+  // ── Batch totals ──
+  const totalJob     = totalPerPc * qty;   // = materialJobCost + elecCost + amortCost + labor + failure
+  const salePricePerPc = totalPerPc * markup;
+  const salePriceJob   = salePricePerPc * qty;
+  const markupPerPc    = salePricePerPc - totalPerPc;  // profit portion
+
+  // Spool %
+  const spoolPct = spoolW > 0 ? (filament / spoolW) * 100 : 0;
+
+  // ── DOM ──
+  // Material card shows total job filament cost + per-piece breakdown
+  document.getElementById('res-material').textContent     = fmt(materialPerPc);
+  document.getElementById('res-material-sub').textContent = qty > 1
+    ? `${fmtg(filament/qty)} avg · ${fmt(materialJobCost)} job total`
+    : `${fmtg(filament)} × ${fmt(cpg)}/g`;
+
+  document.getElementById('res-elec').textContent     = fmt(elecCost / qty);
+  document.getElementById('res-elec-sub').textContent = elecOn
+    ? `${fmt(elecCost)} job · ÷${qty} ${t.unit_pcs}` : t.elec_disabled;
+
+  document.getElementById('res-amort').textContent     = fmt(amortCost / qty);
+  document.getElementById('res-amort-sub').textContent = amortOn
+    ? `${fmt(amortCost)} job · ÷${qty} ${t.unit_pcs}` : t.not_included;
+
+  document.getElementById('res-failure').textContent     = fmt(failurePerPc);
+  document.getElementById('res-failure-sub').textContent = failurePct > 0
+    ? `${failurePct}% ${t.failure_of_base}` : t.failure_zero;
+
+  document.getElementById('res-length').innerHTML =
+    lengthM.toFixed(2) + ' <span style="font-size:1rem;opacity:0.7">m</span>';
+
+  document.getElementById('res-spool').textContent     = spoolPct.toFixed(1) + '%';
+  document.getElementById('res-spool-sub').textContent = `${fmtg(filament)} ${t.of_spool} ${fmtg(spoolW)} ${t.spool_label}`;
+
+  // Per-piece total
+  const parts = [t.res_material.toLowerCase()];
+  if (elecOn)          parts.push(t.res_elec.toLowerCase());
+  if (amortOn)         parts.push(t.res_amort.toLowerCase());
+  if (labor > 0)       parts.push(t.lbl_labor.toLowerCase());
+  if (failurePct > 0)  parts.push(t.res_failure.toLowerCase());
+  document.getElementById('res-base').textContent     = fmt(totalPerPc);
+  document.getElementById('res-base-sub').textContent = `${t.lbl_qty_result} · ` + parts.join(' + ');
+
+  // Batch total (qty box)
+  document.getElementById('res-qty').textContent     = fmt(totalJob);
+  document.getElementById('res-qty-sub').textContent = qty > 1
+    ? `${qty} × ${fmt(totalPerPc)}` : `1 ${t.unit_pcs}`;
+
+  // Sale price
+  document.getElementById('res-total').textContent     = fmt(salePriceJob);
+  document.getElementById('res-total-sub').textContent = markup !== 1
+    ? `${qty} × ${fmt(salePricePerPc)}  (+${fmt(markupPerPc)} ${t.lbl_qty_result})`
+    : (qty > 1 ? `${qty} × ${fmt(salePricePerPc)}` : t.no_markup);
+}
+
+// ─────────────────────────────────────────────
+//  BIND ALL INPUTS
+// ─────────────────────────────────────────────
+['filamentUsed','spoolWeight','spoolCost','printTimeHr','printTimeMin','quantity','kwhRate',
+ 'printerValue','usefulLifeHours','failureRate','markup','laborCost']
+  .forEach(id => document.getElementById(id).addEventListener('input', calc));
+
+calc();
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

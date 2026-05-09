@@ -1,0 +1,24 @@
+{
+  "name": "3D Print Calculator",
+  "short_name": "PrintCalc",
+  "description": "FDM 3D printing cost calculator with material, electricity, amortization and failure rate.",
+  "start_url": "./3d-print-calculator.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#009195",
+  "theme_color": "#009195",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
